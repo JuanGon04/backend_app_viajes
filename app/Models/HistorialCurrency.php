@@ -12,9 +12,10 @@ class HistorialCurrency extends Model
     protected $keyType = 'int'; // Tipo de clave primaria
 
     protected $fillable = [
-        'presupuesto_moneda_extrangera',
+        'presupuesto_moneda_extranjera',
         'presupuesto_moneda_local',
-        'tasa_cambio'
+        'tasa_cambio',
+        'ciudad_id'
     ];
 
     public function Ciudad()

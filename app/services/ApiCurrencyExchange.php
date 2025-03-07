@@ -17,7 +17,7 @@ class ApiCurrencyExchange
         $this->baseUrl = 'https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert';
     }
 
-    public function getCurrency($to, $amount)
+    public function getCurrency($divisa, $amount)
     {
         try {
 
@@ -28,7 +28,7 @@ class ApiCurrencyExchange
                 'X-RapidAPI-Host' => 'currency-conversion-and-exchange-rates.p.rapidapi.com',
             ])->get($this->baseUrl, [
                 'from' => $from,
-                'to' => $to,
+                'to' => $divisa,
                 'amount' => $amount,
             ]);
 

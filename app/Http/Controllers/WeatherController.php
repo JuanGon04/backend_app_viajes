@@ -46,8 +46,6 @@ class WeatherController extends Controller
             return response()->json(['mensaje' => 'No se obtuvo respuesta de la API del clima'], 502);
         }
 
-        
-
     }
 }
 

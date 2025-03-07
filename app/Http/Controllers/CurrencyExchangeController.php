@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ciudades;
+use App\Models\HistorialCurrency;
 use Illuminate\Http\Request;
 use App\Services\ApiCurrencyExchange;
 
@@ -15,20 +17,44 @@ class CurrencyExchangeController extends Controller
         $this->currencyService = $currencyService;
     }
 
-    public function consultarApiCurrency(Request $request)
-    {
-        $to = $request->query('to');
-        $amout = $request->query('amout');
+    public function findCity($id){
+        $ciudad = Ciudades::select('codigo_divisa', 'simbolo_moneda')->where('id', $id)->first();
 
-        // Validar que los parámetros existen
-        if (!$to || !$amout) {
-            return response()->json(['error' => ' y longitud son requeridos'], 400);
+        if (!$ciudad) {
+            return response()->json(['mensaje' => 'Ciudad no encontrada'], 404);
         }
-        
-        $currency = $this->currencyService->getCurrency($to, $amout);
 
-        
-
-        return response()->json($currency);
+        return $ciudad;
     }
+
+    public function consultarApiCurrency(Request $request){
+    
+        $id = $request->query('id');
+        $amount = $request->query('amount');
+
+        if (!$id||!$amount) {
+            return response()->json(['mensaje' => 'El id y la total de la modena local son obligatorios'], 402);
+        }
+
+        $ciudad = $this->findCity($id);
+
+        $currency = $this->currencyService->getCurrency($ciudad->codigo_divisa, $amount);
+
+        // Guardar en historial con validación
+        try {
+            $historial = new HistorialCurrency();
+            $historial->ciudad_id = $id;
+            $historial->presupuesto_moneda_extranjera = $currency['result'] ?? null;
+            $historial->presupuesto_moneda_local = $currency['query']['amount'] ?? null;
+            $historial->tasa_cambio = $currency['info']['rate'] ?? null;
+            $historial->save();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al guardar en historial', 'detalle' => $e->getMessage()], 500);
+        }
+
+        return response()->json(array_merge($currency, ['simbolo_moneda' => $ciudad->simbolo_moneda]));
+    }
+
 }
+
+
