@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Ciudades;
+use App\Models\Historial;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
+
 
 class HistorialController extends Controller
 {
@@ -14,26 +16,23 @@ class HistorialController extends Controller
      */
     public function index()
     {
-        $datos = DB::table('historial_currency_exchange')
-    ->join('ciudades', 'historial_currency_exchange.ciudad_id', '=', 'ciudades.id')
-    ->join(DB::raw('(SELECT * FROM historialweather WHERE created_at = (SELECT MAX(created_at) FROM historialweather AS hw WHERE hw.ciudad_id = historialweather.ciudad_id)) as historialweather'),
-        'historialweather.ciudad_id', '=', 'ciudades.id')
-    ->select(
-        'historial_currency_exchange.presupuesto_moneda_extranjera',
-        'historial_currency_exchange.presupuesto_moneda_local',
-        'historial_currency_exchange.tasa_cambio',
-        'ciudades.ciudad',
-        'ciudades.codigo_divisa',
-        'historialweather.temperatura',
-        'historialweather.condicion_meteorologica',
-        'historialweather.temperatura_minima',
-        'historialweather.temperatura_maxima',
-        'historialweather.sensacion_termica'
-    )
-    ->get();
+        try {
+            $historial = Historial::join('ciudades', 'historial.ciudad_id', '=', 'ciudades.id')
+            ->select('historial.*', 'ciudades.ciudad as ciudad', 'ciudades.pais as pais')
+            ->orderBy('historial.id', 'desc') // Ordenar por ID en orden descendente
+            ->limit(4) // Obtener solo los últimos 5
+            ->get();
 
-
-        return response()->json($datos);
+    
+            if ($historial->isEmpty()) {
+                return response()->json(['message' => 'No hay registros en el historial'], 200);
+            }
+    
+            return response()->json($historial);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener el historial', 'detalle' => $e->getMessage()], 500);
+        }
+    
     }
 
     /**
@@ -41,7 +40,32 @@ class HistorialController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            // Validar datos
+            $datos = $request->validate([
+                'temperatura' => 'required',
+                'condicion_meteorologica'=> 'required',
+                'temperatura_minima' => 'required',
+                'temperatura_maxima'=> 'required',
+                'sensacion_termica'=> 'required',
+                'ciudad_id'=> 'required',
+                'presupuesto_moneda_extranjera' => 'required',
+                'presupuesto_moneda_local'=>'required',
+                'tasa_cambio'=>'required',
+                'simbolo_moneda'=>'required',
+                'tipo_clima'=>'required',
+            ]);
+
+            // Guardar en la base de datos con asignación masiva
+            $historial = Historial::create($datos);
+
+            return response()->json(['message' => 'Historial guardado correctamente', 'data' => $historial], 201);
+
+        } catch (ValidationException $e) {
+            return response()->json(['error' => 'Error de validación', 'detalle' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al guardar en historial', 'detalle' => $e->getMessage()], 500);
+        }
     }
 
     /**

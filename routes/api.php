@@ -10,6 +10,8 @@ Route::get('/weather/{id}', [WeatherController::class, 'consultarApiWeather']);
 Route::get('/currency', [CurrencyExchangeController::class, 'consultarApiCurrency']);
 Route::get('/ciudades', [CiudadesController::class, 'index']);
 Route::get('/historial', [HistorialController::class, 'index']);
+Route::post('/historial', [HistorialController::class, 'store']);
+
 
 
 

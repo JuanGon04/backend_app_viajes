@@ -4,13 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class HistorialWeather extends Model
+class Historial extends Model
 {
-
-    protected $table = 'historialweather';
-    protected $primaryKey = 'id'; // Utiliza la columna 'id' como clave primaria
-    public $incrementing = true; // La columna 'id' es incrementada automáticamente
-    protected $keyType = 'int'; // Tipo de clave primaria
+    protected $table = 'historial';
 
     protected $fillable = [
         'temperatura',
@@ -18,7 +14,12 @@ class HistorialWeather extends Model
         'temperatura_minima',
         'temperatura_maxima',
         'sensacion_termica',
-        'ciudad_id'
+        'ciudad_id',
+        'presupuesto_moneda_extranjera',
+        'presupuesto_moneda_local',
+        'tasa_cambio',
+        'simbolo_moneda',
+        'tipo_clima'
     ];
 
     public function Ciudad()

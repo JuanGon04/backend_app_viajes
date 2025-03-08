@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ciudades;
-use App\Models\HistorialCurrency;
 use Illuminate\Http\Request;
 use App\Services\ApiCurrencyExchange;
 
@@ -39,18 +38,6 @@ class CurrencyExchangeController extends Controller
         $ciudad = $this->findCity($id);
 
         $currency = $this->currencyService->getCurrency($ciudad->codigo_divisa, $amount);
-
-        // Guardar en historial con validación
-        try {
-            $historial = new HistorialCurrency();
-            $historial->ciudad_id = $id;
-            $historial->presupuesto_moneda_extranjera = $currency['result'] ?? null;
-            $historial->presupuesto_moneda_local = $currency['query']['amount'] ?? null;
-            $historial->tasa_cambio = $currency['info']['rate'] ?? null;
-            $historial->save();
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al guardar en historial', 'detalle' => $e->getMessage()], 500);
-        }
 
         return response()->json(array_merge($currency, ['simbolo_moneda' => $ciudad->simbolo_moneda]));
     }

@@ -11,14 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::dropIfExists('historial');
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
         Schema::create('historial', function (Blueprint $table) {
             $table->id(); // ID autoincremental
             $table->foreignId('ciudad_id')->constrained('ciudades')->onDelete('cascade');
@@ -27,10 +19,18 @@ return new class extends Migration
             $table->decimal('temperatura_minima', 10, 2);
             $table->decimal('temperatura_maxima', 10, 2);
             $table->decimal('sensacion_termica', 10, 2);
-            $table->decimal('presupuesto_moneda_extrangera', 20, 3);
+            $table->decimal('presupuesto_moneda_extranjera', 20, 3);
             $table->decimal('presupuesto_moneda_local', 20, 3);
             $table->decimal('tasa_cambio', 20, 3);
             $table->timestamps();
         });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('historial');
     }
 };
