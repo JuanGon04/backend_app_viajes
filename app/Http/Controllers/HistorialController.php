@@ -18,9 +18,9 @@ class HistorialController extends Controller
     {
         try {
             $historial = Historial::join('ciudades', 'historial.ciudad_id', '=', 'ciudades.id')
-            ->select('historial.*', 'ciudades.ciudad as ciudad', 'ciudades.pais as pais')
-            ->orderBy('historial.id', 'desc') // Ordenar por ID en orden descendente
-            ->limit(4) // Obtener solo los últimos 5
+            ->select('historial.*', 'ciudades.ciudad as ciudad', 'ciudades.pais as pais', 'ciudades.codigo_divisa as codigo_divisa')
+            ->orderBy('historial.id', 'desc')
+            ->limit(4)
             ->get();
 
     
@@ -66,29 +66,5 @@ class HistorialController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al guardar en historial', 'detalle' => $e->getMessage()], 500);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }
